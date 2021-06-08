@@ -3,6 +3,8 @@ import os
 import random
 import re
 
+from datetime import datetime
+
 import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions
@@ -29,10 +31,15 @@ client.nopes = [
     'Abonniere jetzt MokruHD **GRATIS** mit Twitch Prime: http://twitch.tv/MoKruHD',
 ]
 
+async def timestamp():
+    now = datetime.now()
+    dt_string = now.strftime('[%d.%m.%Y - %H:%M:%S] ')
+    return dt_string
 
 @client.event
 async def on_ready():
-    print(f'{client.user.name} has connected to Discord!')
+    time = await timestamp()
+    print(time+f'{client.user.name} hat sich mit Discord verbunden.')
 
 
 @client.event
@@ -42,6 +49,8 @@ async def on_guild_join(guild):
             await channel.send("Ich bin Polly!\nDanke, dass du mich auf deinen Server eingeladen hast.\n"
                                "Um fortzufahren, schreib einfach !pollysetup in den Kanal, in dem du mich kontrollieren "
                                "willst!\n\nÜbrigens: Kanäle, auf die alle zugreifen können, sind da schlecht :).")
+            time = await timestamp()
+            print(time + "f'{client.user.name} ist einem Server beigetreten: "+ guild.name)
         break
 
 
@@ -151,7 +160,7 @@ async def polly(ctx, *values):
                                    description="Nein",
                                    color=15158332)
             helper.set_footer(text="bot created by cbxy - https://mwae.de",
-                              icon_url="https://cdn.discordapp.com/avatars/241653148601548801/210e642ff1b52daf6ae8ff3b8552efd0.png?size=256")
+                              icon_url="https://cdn.discordapp.com/avatars/241653148601548801/cbae080a322e562c20d5cfab52c63721.png?size=256")
             await ctx.send(embed=helper)
         else:
             helper = discord.Embed(title="Hilfe-Menü für Bot-Commands",
@@ -246,7 +255,10 @@ async def polly(ctx, *values):
             poll.add_field(name=emoji[i], value=emojitext[i], inline=True)
         msg = await channel.send(embed=poll)
         await ctx.send("Umfrage '" + title + "' generiert!")
-        client.pollCount = +1
+        if data[0] == "create" or data[0] == "-c" or data[0] == "erstellen":
+            client.pollCount = client.pollCount + 1
+            time = await timestamp()
+            print(time + "Umfrage '" + title + "' erfolgreich erstellt")
         for j in range(0, fieldCount):
             await msg.add_reaction(emoji[j])
 
