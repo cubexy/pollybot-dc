@@ -13,11 +13,9 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-client.botinit = True
-client.mdc = '714120321182990366'
-# Mod channel ID - TODO: set manually
-client.dc = '722927778009186344'
-# Poll channel ID - TODO: set manually
+client.botinit = False
+client.mdc = ''
+client.dc = ''
 client.prefix = '!'
 # TODO: set manually
 client.sendErrors = False
@@ -67,25 +65,47 @@ async def pollysetup(ctx, *values):
             client.dc = data[1]
             await ctx.send("Einrichtung ist abgeschlossen! Bitte benutze !polly help für weitere Anweisungen!")
             client.botinit = True
+        elif client.mdc!='' and client.dc!='':
+            await ctx.send("Einrichtung ist abgeschlossen! Bitte benutze !polly help für weitere Anweisungen!")
+            client.botinit = True
         else:
-            await ctx.send("Syntax: !pollysetup [Mod-Channel-ID] [Poll-Channel-ID]\n"
-                           "Um die ID eines Kanals zu erhalten, nutze einfach !id."
+            await ctx.send("Syntax: **!pollysetup** [*Mod-Channel-ID*] [*Poll-Channel-ID*]\n"
+                           "Um die ID eines Kanals zu erhalten, nutze einfach !id.\n"
+                           "Alternativ kannst du mit **!pollymdc** den Moderationskanal und mit **!pollydc** den Umfragekanal setzen!"
                            )
     else:
         await ctx.send(random.choice(client.nopes))
 
+@client.command(pass_context=True)
+@has_permissions(administrator=True)
+async def pollymdc(ctx):
+    id = ctx.message.channel.id
+    name = ctx.message.channel.name
+    client.mdc = id
+    await ctx.send("Der Kanal " + str(name) + " wurde als Moderationskanal gesetzt!")
+
+@client.command(pass_context=True)
+@has_permissions(administrator=True)
+async def pollydc(ctx):
+    id = ctx.message.channel.id
+    name = ctx.message.channel.name
+    client.dc = id
+    await ctx.send("Der Kanal " + str(name) + " wurde als Umfragekanal gesetzt!")
 
 @client.command()
 async def polly(ctx, *values):
     length = int(((values.__sizeof__()) - 24) / 8)
+    # Process further inputs
     data = []
     for i in range(0, length):
         data.append(str(values[i]))
+    # Append characters of *values to data
     if (client.botinit == True and str(ctx.message.channel.id) == str(client.mdc) and length > 0 and str(
             values[0]).lower() == "help" or str(values[0]).lower() == "-h" or str(values[0]).lower() == "hilfe"):
         channel = client.get_channel(int(client.dc))
         for i in range(0, length):
             data[i] = str(data[i]).lower()
+        # Process data
         if (length > 1 and data[1] == "create"):
             if (length > 2 and (data[2] == "-c" or data[2] == "-color" or data[2] == "color" or data[2] == "c")):
                 helper = discord.Embed(title='!polly create -c/-color "Farbwert"',
@@ -152,7 +172,7 @@ async def polly(ctx, *values):
                              value="Tool zum Aufsetzen des Bots",
                              inline=False)
             helper.add_field(name="!polly senderrors",
-                             value="Kontrolliert die Fehlerausgabe",
+                             value="Kontrolliert die Fehlerausgabe [WIP]",
                              inline=False)
             await ctx.send(embed=helper)
 
@@ -328,6 +348,7 @@ async def polly(ctx, *values):
 async def polly_error(ctx, error):
     if client.sendErrors:
         ctx.send(error)
+# WIP
 
 @client.command()
 async def test(ctx):
