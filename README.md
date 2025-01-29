@@ -1,3 +1,6 @@
+![grafik](https://github.com/user-attachments/assets/edd04226-9b70-4e77-b7e0-cf433072f611)
+
+
 # pollybot-dc
  Polly is a Discord bot that can create, manage and display various polls.
 
